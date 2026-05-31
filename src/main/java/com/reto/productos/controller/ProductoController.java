@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class ProductoController {
 
     // 3. POST: Crear un nuevo producto (Retorna el ID autogenerado por el SP)
     @PostMapping
-    public ResponseEntity<Long> crear(@RequestBody ProductoCreateDTO dto) {
+    public ResponseEntity<Long> crear(@Valid @RequestBody ProductoCreateDTO dto) {
         Long idGenerado = productoService.crear(dto);
         return new ResponseEntity<>(idGenerado, HttpStatus.CREATED);
     }
@@ -47,7 +49,7 @@ public class ProductoController {
     // 4. PUT: Actualizar un producto existente
     @PutMapping("/{id}")
     public ResponseEntity<Void> actualizar(@PathVariable Long id,
-            @RequestBody ProductoUpdateDTO dto) {
+            @Valid @RequestBody ProductoUpdateDTO dto) {
         productoService.actualizar(id, dto);
         return ResponseEntity.noContent().build();
     }
