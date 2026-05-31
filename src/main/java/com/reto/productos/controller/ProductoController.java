@@ -6,6 +6,8 @@ import com.reto.productos.dto.ProductoTabularDTO;
 import com.reto.productos.dto.ProductoUpdateDTO;
 import com.reto.productos.service.ProductoService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,11 @@ public class ProductoController {
     private final ProductoService productoService;
 
     // 1. GET: Listar todos los productos (Data optimizada para tablas)
-    @GetMapping
-    public ResponseEntity<List<ProductoTabularDTO>> listarTodos() {
-        List<ProductoTabularDTO> productos = productoService.listarTodos();
-        return ResponseEntity.ok(productos);
-    }
+    // @GetMapping
+    // public ResponseEntity<List<ProductoTabularDTO>> listarTodos() {
+    //     List<ProductoTabularDTO> productos = productoService.listarTodos();
+    //     return ResponseEntity.ok(productos);
+    // }
 
     // 2. GET: Obtener el detalle completo de un producto por ID (Consume el
     // SYS_REFCURSOR)
@@ -59,5 +61,17 @@ public class ProductoController {
     public ResponseEntity<Void> eliminarLogico(@PathVariable Long id) {
         productoService.eliminarLogico(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ProductoTabularDTO>> listarTodos(
+            @RequestParam(required = false) String marca,
+            @RequestParam(required = false) String modelo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Page<ProductoTabularDTO> productosPaginados = 
+                productoService.listarPaginado(marca, modelo, page, size);
+        return ResponseEntity.ok(productosPaginados);
     }
 }

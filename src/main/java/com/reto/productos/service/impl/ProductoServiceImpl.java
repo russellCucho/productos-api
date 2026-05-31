@@ -14,6 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import javax.persistence.EntityManager;
 import javax.persistence.StoredProcedureQuery;
 import java.util.List;
@@ -130,5 +135,36 @@ public class ProductoServiceImpl implements ProductoService {
         this.obtenerPorId(id);
         // Llama al SP encargado del borrado lógico cambiando el estado a 'I'
         productoRepository.spEliminarLogicoProducto(id);
+    }
+
+    // Nuevo método: Consulta Nativa Paginada con Filtros (Limpio de paquetes largos)
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoTabularDTO> listarPaginado(String marca, String modelo, int page, int size) {
+        // 1. Creamos el objeto de paginación (ID descendente para ver lo último creado primero)
+        Pageable pageable = PageRequest.of(
+                page, 
+                size, 
+                Sort.by("ID_PRODUCTO").descending()
+        );
+
+        // 2. Limpiamos los hilos vacíos para pasarlos como NULL a Oracle si vienen en blanco desde el cliente
+        String filtroMarca = (marca != null && !marca.trim().isEmpty()) ? marca.trim() : null;
+        String filtroModelo = (modelo != null && !modelo.trim().isEmpty()) ? modelo.trim() : null;
+
+        // 3. Ejecutamos la Query Nativa paginada
+        Page<ProductoEntity> entidadesPaginadas = 
+                productoRepository.listarConFiltrosNativos(filtroMarca, filtroModelo, pageable);
+
+        // 4. Transformamos la página de entidades a una página de DTOs
+        return entidadesPaginadas.map(p -> ProductoTabularDTO.builder()
+                .idProducto(p.getIdProducto())
+                .codigo(p.getCodigo())
+                .nombre(p.getNombre())
+                .marca(p.getMarca())
+                .modelo(p.getModelo())
+                .precio(p.getPrecio())
+                .stock(p.getStock())
+                .build());
     }
 }
