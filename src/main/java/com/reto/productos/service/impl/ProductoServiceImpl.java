@@ -51,7 +51,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // ignora warnings
     public ProductoDetailDTO obtenerPorId(Long id) {
         // Llamada manual al SYS_REFCURSOR usando el query registrado en la entidad
         StoredProcedureQuery query = entityManager
