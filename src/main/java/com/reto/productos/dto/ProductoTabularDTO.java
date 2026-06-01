@@ -14,4 +14,5 @@ public class ProductoTabularDTO {
     private String modelo;
     private BigDecimal precio;
     private Integer stock;
+    private String estado;
 }

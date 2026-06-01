@@ -145,7 +145,7 @@ public class ProductoServiceImpl implements ProductoService {
         Pageable pageable = PageRequest.of(
                 page, 
                 size, 
-                Sort.by("ID_PRODUCTO").descending()
+                Sort.by("ID_PRODUCTO").ascending()
         );
 
         // 2. Limpiamos los hilos vacíos para pasarlos como NULL a Oracle si vienen en blanco desde el cliente
@@ -165,6 +165,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .modelo(p.getModelo())
                 .precio(p.getPrecio())
                 .stock(p.getStock())
+                .estado(p.getEstado())
                 .build());
     }
 }
