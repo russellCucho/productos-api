@@ -5,12 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.reto.productos.util.Constants;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,9 +42,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body(error);
     }
 
-    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
-            org.springframework.dao.DataIntegrityViolationException ex) {
+            DataIntegrityViolationException ex) {
         String mensaje = "Ha ocurrido un conflicto con la integridad de los datos.";
 
         // Analizamos si el log menciona tu restricción única de Oracle
@@ -62,14 +65,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
-            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+            MethodArgumentNotValidException ex) {
         // Captura el primer mensaje de error que encuentre en la lista de campos
         // inválidos
         List<String> listaDeErrores = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(org.springframework.validation.FieldError::getDefaultMessage)
-                .collect(java.util.stream.Collectors.toList());
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.toList());
 
         // 2. Definimos un mensaje genérico para el encabezado principal
         String mensajePrincipal = "Se encontraron errores de validación en los datos enviados.";
